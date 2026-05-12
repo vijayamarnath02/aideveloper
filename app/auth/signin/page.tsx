@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const GRID_CHARS = "01{}[];=><!/*abcdefghijklmnopqrstuvwxyz".split("");
@@ -165,7 +166,7 @@ export default function SignUp() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("/api/v1/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -398,8 +399,8 @@ export default function SignUp() {
             }}
           >
             ALREADY HAVE AN ACCOUNT?{" "}
-            <a
-              href="/login"
+            <Link
+              href="/auth/login"
               style={{
                 color: "#00e5a0",
                 textDecoration: "none",
@@ -413,7 +414,7 @@ export default function SignUp() {
               }
             >
               SIGN IN →
-            </a>
+            </Link>
           </p>
         </div>
       </div>
@@ -787,25 +788,25 @@ export default function SignUp() {
                 }}
               >
                 BY CONTINUING YOU AGREE TO OUR{" "}
-                <a
-                  href="#"
+                <Link
+                  href="/auth/login"
                   style={{
                     color: "rgba(255,255,255,0.4)",
                     textDecoration: "none",
                   }}
                 >
                   TERMS
-                </a>{" "}
+                </Link>{" "}
                 &amp;{" "}
-                <a
-                  href="#"
+                <Link
+                  href="/auth/login"
                   style={{
                     color: "rgba(255,255,255,0.4)",
                     textDecoration: "none",
                   }}
                 >
                   PRIVACY POLICY
-                </a>
+                </Link>
               </p>
             </form>
           )}
