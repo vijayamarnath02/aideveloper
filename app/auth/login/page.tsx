@@ -2,21 +2,16 @@
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 const loginUser = async (email: string, password: string) => {
-  try {
-    const res = await fetch("/api/v1/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.message || "Login failed");
-    }
-    return await res.json();
-  } catch (error) {
-    console.error("Login error:", error);
-  }
+  const res = await fetch("/api/v1/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Login failed");
+  return data;
 };
 const GRID_CHARS = "01{}[];=><!/*abcdefghijklmnopqrstuvwxyz".split("");
 const GRID_COLS = 18;
@@ -83,11 +78,11 @@ function CodeGrid() {
 type Field = "email" | "password";
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [focused, setFocused] = useState<Field | null>(null);
-  const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [greeting, setGreeting] = useState("");
@@ -95,11 +90,12 @@ export default function Login() {
   const mutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       loginUser(email, password),
-    onSuccess: (data) => {
-      console.log("Success", data);
+    onSuccess: () => {
+      setDone(true);
+      setTimeout(() => router.push("/dashboard"), 1200);
     },
-    onError: (error) => {
-      console.log("Error", error);
+    onError: (error: Error) => {
+      setErrors({ email: `// ${error.message}` });
     },
   });
   useEffect(() => {
@@ -122,10 +118,9 @@ export default function Login() {
   }
 
   function handleSubmit(ev: React.FormEvent) {
-    mutation.mutate({
-      email: "admin@gmail.com",
-      password: "123456",
-    });
+    ev.preventDefault();
+    if (!validate()) return;
+    mutation.mutate({ email, password });
   }
 
   return (
@@ -652,11 +647,11 @@ export default function Login() {
               {/* Submit */}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={mutation.isPending}
                 style={{
                   width: "100%",
                   padding: "0.875rem",
-                  background: loading ? "rgba(0,229,160,0.5)" : "#00e5a0",
+                  background: mutation.isPending ? "rgba(0,229,160,0.5)" : "#00e5a0",
                   border: "none",
                   borderRadius: "3px",
                   color: "#0a0a0f",
@@ -664,7 +659,7 @@ export default function Login() {
                   fontSize: "0.8rem",
                   letterSpacing: "0.1em",
                   fontWeight: 700,
-                  cursor: loading ? "not-allowed" : "pointer",
+                  cursor: mutation.isPending ? "not-allowed" : "pointer",
                   transition: "all 0.2s",
                   display: "flex",
                   alignItems: "center",
@@ -672,14 +667,14 @@ export default function Login() {
                   gap: "10px",
                 }}
                 onMouseEnter={(e) => {
-                  if (!loading)
+                  if (!mutation.isPending)
                     (e.currentTarget as HTMLElement).style.opacity = "0.88";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.opacity = "1";
                 }}
               >
-                {loading ? (
+                {mutation.isPending ? (
                   <>
                     <span
                       style={{
