@@ -1,7 +1,23 @@
 "use client";
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
+const loginUser = async (email: string, password: string) => {
+  try {
+    const res = await fetch("/api/v1/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Login failed");
+    }
+    return await res.json();
+  } catch (error) {
+    console.error("Login error:", error);
+  }
+};
 const GRID_CHARS = "01{}[];=><!/*abcdefghijklmnopqrstuvwxyz".split("");
 const GRID_COLS = 18;
 const GRID_ROWS = 28;
@@ -11,11 +27,10 @@ function randomChar() {
 }
 
 function CodeGrid() {
-  const [cells, setCells] = useState<string[]>(() =>
-    Array.from({ length: GRID_COLS * GRID_ROWS }, () => randomChar()),
-  );
+  const [cells, setCells] = useState<string[]>([]);
 
   useEffect(() => {
+    setCells(Array.from({ length: GRID_COLS * GRID_ROWS }, () => randomChar()));
     const interval = setInterval(() => {
       setCells((prev) => {
         const next = [...prev];
@@ -77,7 +92,16 @@ export default function Login() {
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [greeting, setGreeting] = useState("");
   const fullGreeting = "Welcome back, developer.";
-
+  const mutation = useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      loginUser(email, password),
+    onSuccess: (data) => {
+      console.log("Success", data);
+    },
+    onError: (error) => {
+      console.log("Error", error);
+    },
+  });
   useEffect(() => {
     let i = 0;
     const t = setInterval(() => {
@@ -98,13 +122,10 @@ export default function Login() {
   }
 
   function handleSubmit(ev: React.FormEvent) {
-    ev.preventDefault();
-    if (!validate()) return;
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setDone(true);
-    }, 1800);
+    mutation.mutate({
+      email: "admin@gmail.com",
+      password: "123456",
+    });
   }
 
   return (

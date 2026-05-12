@@ -1,6 +1,8 @@
+import { generateToken } from "@/app/lib/jwt";
 import { connectDB } from "@/app/lib/mongodb";
 import User from "@/app/models/user";
 import { Logintype } from "@/app/type/auth";
+import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
@@ -12,7 +14,10 @@ export async function POST(req: Request) {
                 return Response.json({ message: "User already exists" }, { status: 400 });
             }
             const user = await User.create(data);
-            return Response.json({ message: "User registered successfully", user }, { status: 201 });
+            const token = generateToken({ email: user.email, name: user.name });
+            const res = NextResponse.json({ message: "User registered successfully", token }, { status: 201 });
+            res.cookies.set("token", token, { httpOnly: true, secure: true, sameSite: "strict", maxAge: 60 * 60 * 24 });
+            return res;
         } else {
             return Response.json({ message: "Email and password are required" }, { status: 400 });
         }
