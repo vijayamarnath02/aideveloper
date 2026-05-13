@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         const data: Logintype = await req.json();
         await connectDB();
         if (data.email && data.password) {
-            const user = await User.findOne({ email: data.email });
+            const user = await User.findOne({ email: data.email.trim().toLowerCase() });
             if (!user) {
                 return Response.json({ message: "User not found" }, { status: 404 });
             }
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
             }
             const token = generateToken({ email: user.email, name: user.name });
             const res = NextResponse.json({ message: "User logged in successfully", token }, { status: 200 });
-            res.cookies.set("token", token, { httpOnly: true, secure: true, sameSite: "strict", maxAge: 60 * 60 * 24 });
+            res.cookies.set("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 60 * 60 * 24 });
             return res;
         } else {
             return Response.json({ message: "Email and password are required" }, { status: 400 });

@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 
 const GRID_CHARS = "01{}[];=><!/*abcdefghijklmnopqrstuvwxyz".split("");
 const GRID_COLS = 18;
@@ -148,6 +149,10 @@ export default function SignUp() {
   function update(field: Field, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleOAuth(provider: "github" | "google") {
+    void signIn(provider, { callbackUrl: "/dashboard" });
   }
 
   function validate() {
@@ -527,12 +532,13 @@ export default function SignUp() {
                 }}
               >
                 {[
-                  { label: "GitHub", icon: "⌥" },
-                  { label: "Google", icon: "◉" },
+                  { label: "GitHub", icon: "⌥", provider: "github" as const },
+                  { label: "Google", icon: "◉", provider: "google" as const },
                 ].map((btn) => (
                   <button
                     key={btn.label}
                     type="button"
+                    onClick={() => handleOAuth(btn.provider)}
                     style={{
                       flex: 1,
                       display: "flex",

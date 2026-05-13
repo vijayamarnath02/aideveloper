@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 const loginUser = async (email: string, password: string) => {
   const res = await fetch("/api/v1/login", {
     method: "POST",
@@ -121,6 +122,10 @@ export default function Login() {
     ev.preventDefault();
     if (!validate()) return;
     mutation.mutate({ email, password });
+  }
+
+  function handleOAuth(provider: "github" | "google") {
+    void signIn(provider, { callbackUrl: "/dashboard" });
   }
 
   return (
@@ -391,12 +396,13 @@ export default function Login() {
                 }}
               >
                 {[
-                  { label: "GitHub", icon: "⌥" },
-                  { label: "Google", icon: "◉" },
+                  { label: "GitHub", icon: "⌥", provider: "github" as const },
+                  { label: "Google", icon: "◉", provider: "google" as const },
                 ].map((btn) => (
                   <button
                     key={btn.label}
                     type="button"
+                    onClick={() => handleOAuth(btn.provider)}
                     style={{
                       flex: 1,
                       display: "flex",
@@ -552,7 +558,7 @@ export default function Login() {
                     PASSWORD
                   </label>
                   <Link
-                    href="/auth/signin"
+                    href="/auth/forgetpass"
                     style={{
                       fontFamily: "'Courier New', monospace",
                       fontSize: "0.65rem",
