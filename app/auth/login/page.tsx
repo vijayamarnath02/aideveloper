@@ -1,9 +1,9 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 const loginUser = async (email: string, password: string) => {
   const res = await fetch("/api/v1/login", {
     method: "POST",
@@ -93,7 +93,7 @@ export default function Login() {
       loginUser(email, password),
     onSuccess: () => {
       setDone(true);
-      setTimeout(() => router.push("/dashboard"), 1200);
+      setTimeout(() => router.push("/main/dashboard"), 1200);
     },
     onError: (error: Error) => {
       setErrors({ email: `// ${error.message}` });
@@ -657,7 +657,9 @@ export default function Login() {
                 style={{
                   width: "100%",
                   padding: "0.875rem",
-                  background: mutation.isPending ? "rgba(0,229,160,0.5)" : "#00e5a0",
+                  background: mutation.isPending
+                    ? "rgba(0,229,160,0.5)"
+                    : "#00e5a0",
                   border: "none",
                   borderRadius: "3px",
                   color: "#0a0a0f",

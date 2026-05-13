@@ -1,7 +1,7 @@
 "use client";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { signIn } from "next-auth/react";
 
 const GRID_CHARS = "01{}[];=><!/*abcdefghijklmnopqrstuvwxyz".split("");
 const GRID_COLS = 18;
@@ -152,7 +152,7 @@ export default function SignUp() {
   }
 
   function handleOAuth(provider: "github" | "google") {
-    void signIn(provider, { callbackUrl: "/dashboard" });
+    void signIn(provider, { callbackUrl: "/main/dashboard" });
   }
 
   function validate() {

@@ -1,8 +1,8 @@
 export const runtime = "nodejs";
 
+import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "./app/lib/jwt";
-import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
   try {
@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     // Prevent access to login/signup
     if (isAuthPage && isAuthenticated) {
       return NextResponse.redirect(
-        new URL("/dashboard", request.url)
+        new URL("/main/dashboard", request.url)
       );
     }
 
