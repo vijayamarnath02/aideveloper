@@ -1,5 +1,24 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Environment Variables
+
+Create a `.env.local` file in the root of the project and add the following variables:
+
+```env
+# MongoDB connection string
+MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<dbname>
+
+# Secret key used to sign and verify JWT tokens (use a long random string)
+JWT_SECRET=your_super_secret_jwt_key
+```
+
+| Variable    | Required | Description                                      |
+| ----------- | -------- | ------------------------------------------------ |
+| `MONGO_URI` | ✅       | MongoDB connection URI (Atlas or self-hosted)    |
+| `JWT_SECRET`| ✅       | Secret used to sign/verify JSON Web Tokens       |
+
+---
+
 ## Getting Started
 
 First, run the development server:
